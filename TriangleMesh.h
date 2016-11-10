@@ -9,26 +9,26 @@ class TriangleMesh {
 	
 public:
 	
-	TriangleMesh(int vertexDensity){
+	TriangleMesh(int width, int height){
 		
-		for(int row = 0; row < vertexDensity; ++row){
-			for(int col = 0; col < vertexDensity; ++col){
+		for(int row = 0; row < height; ++row){
+			for(int col = 0; col < width; ++col){
 
-				float x = -1.0f + ((2.0f * col) / (vertexDensity - 1));
-				float y = -1.0f + ((2.0f * row) / (vertexDensity - 1));
+				float x = -1.0f + ((2.0f * col) / (width - 1));
+				float y = -1.0f + ((2.0f * row) / (height - 1));
 
 				vertices.push_back(Vec3(x, y, 0));
 			}
 		}
 
-		for(int row = 0; row < vertexDensity - 1; ++row){
-			for(int col = 0; col < vertexDensity; ++col){
+		for(int row = 0; row < height - 1; ++row){
+			for(int col = 0; col < width; ++col){
 
-				indices.push_back(row * vertexDensity + col);
-				indices.push_back((row + 1) * vertexDensity + col);
+				indices.push_back(row * width + col);
+				indices.push_back((row + 1) * width + col);
 			}
 
-			indices.push_back(vertexDensity * vertexDensity);
+			indices.push_back(width * height);
 		}
 
 		const char* vshader_source = loadShaderSource((char *)"Shaders/TriangleMesh_V.GLSL");
@@ -37,7 +37,7 @@ public:
 		if(_shaders <= 0) return;
 
 		glEnable(GL_PRIMITIVE_RESTART);
-		glPrimitiveRestartIndex(vertexDensity * vertexDensity);
+		glPrimitiveRestartIndex(width * height);
 
 		glGenVertexArrays(1, &_vertexArray);
 		glGenBuffers(1, &_vertexBuffer);
