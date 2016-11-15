@@ -131,9 +131,6 @@ private:
 	float Z;
 };
 
-Vec3 operator*(float scalar, Vec3 V);
-Vec3 jitter(float length);
-
 class Ray3 {
 
 public:
@@ -148,3 +145,55 @@ public:
 	Vec3 O;
 	Vec3 D;
 };
+
+class Mat4 {
+
+public:
+
+	Mat4(){
+
+
+	}
+
+	Mat4(float diagonal){
+
+		matrix[0][0] = diagonal;
+		matrix[1][1] = diagonal;
+		matrix[2][2] = diagonal;
+		matrix[3][3] = diagonal;
+	}
+
+	Mat4 operator+(Mat4 other){
+
+		Mat4 returnMat();
+
+		for(int row = 0; row < 4; ++row){
+			for(int col = 0; col < 4; ++col){
+
+				returnMat[row][col] = matrix[row][col] + other[row][col];
+			}
+		}
+
+		return returnMat;
+	}
+
+	Mat4 operator-(Mat4 other){
+
+		Mat4 returnMat();
+
+		for(int row = 0; row < 4; ++row){
+			for(int col = 0; col < 4; ++col){
+
+				returnMat[row][col] = matrix[row][col] - other[row][col];
+			}
+		}
+
+		return returnMat;
+	}
+
+private:
+
+	float matrix[4][4];
+}
+
+Vec3 operator*(float scalar, Vec3 V);
