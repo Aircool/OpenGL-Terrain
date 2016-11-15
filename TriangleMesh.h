@@ -1,34 +1,36 @@
 #pragma once
-#include <iostream>
 #include <vector>
 
 #include "ShaderLoading.h"
-#include "VectorMath.h"
+#include "glm/glm.hpp"
+
+using glm::vec3;
+using glm::mat4;
 
 class TriangleMesh {
 	
 public:
 	
-	TriangleMesh(int width, int height){
+	TriangleMesh(int size) : SIZE(size) {
 		
-		for(int row = 0; row < height; ++row){
-			for(int col = 0; col < width; ++col){
+		for(int row = 0; row < SIZE; ++row){
+			for(int col = 0; col < SIZE; ++col){
 
-				float x = -1.0f + ((2.0f * col) / (width - 1));
-				float y = -1.0f + ((2.0f * row) / (height - 1));
+				float x = -1.0f + ((2.0f * col) / (SIZE - 1));
+				float y = -1.0f + ((2.0f * row) / (SIZE - 1));
 
-				vertices.push_back(Vec3(x, y, 0));
+				vertices.push_back(vec3(x, y, 0));
 			}
 		}
 
-		for(int row = 0; row < height - 1; ++row){
-			for(int col = 0; col < width; ++col){
+		for(int row = 0; row < SIZE - 1; ++row){
+			for(int col = 0; col < SIZE; ++col){
 
-				indices.push_back(row * width + col);
-				indices.push_back((row + 1) * width + col);
+				indices.push_back(row * SIZE + col);
+				indices.push_back((row + 1) * SIZE + col);
 			}
 
-			indices.push_back(width * height);
+			indices.push_back(SIZE * SIZE);
 		}
 
 		const char* vshader_source = loadShaderSource((char *)"Shaders/TriangleMesh_V.GLSL");
@@ -37,7 +39,7 @@ public:
 		if(_shaders <= 0) return;
 
 		glEnable(GL_PRIMITIVE_RESTART);
-		glPrimitiveRestartIndex(width * height);
+		glPrimitiveRestartIndex(SIZE * SIZE);
 
 		glGenVertexArrays(1, &_vertexArray);
 		glGenBuffers(1, &_vertexBuffer);
@@ -53,12 +55,38 @@ public:
 		glBindVertexArray(0);
 	}
 
-	void draw(){
+	void setHeightMap(vec3** map){
+
+		float heightMap[SIZE][SIZE];
+
+		for(int row = 0; row < SIZE; ++row){
+			for(int col = 0; col < SIZE; ++col){
+
+				heightMap[row][col] = map[row][col][0];
+			}
+		}
+
+		glGenTextures(1, &_heightMap);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, _heightMap);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, SIZE, SIZE, 0, GL_RED, GL_FLOAT, heightMap);
+	}
+
+	void draw(mat4 MVP){
 		
 		glUseProgram(_shaders);
 		glBindVertexArray(_vertexArray);
 		
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glUniformMatrix4fv(glGetUniformLocation(_shaders, "MVP"), 1, GL_FALSE, &MVP[0][0]);
+		glUniform1i(glGetUniformLocation(_shaders, "HeightMap"), 0);
+
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glDrawElements(GL_TRIANGLE_STRIP, indices.size(), GL_UNSIGNED_INT, (void *) 0);
 
 		glBindVertexArray(0);
@@ -72,7 +100,12 @@ private:
 	GLuint _vertexArray;
 	GLuint _vertexBuffer;
 	GLuint _indexBuffer;
+	GLuint _heightMap;
 
-	std::vector<Vec3> vertices;
+	std::vector<vec3> vertices;
 	std::vector<unsigned int> indices;
+
+	float** heightMap;
+
+	int SIZE;
 };
