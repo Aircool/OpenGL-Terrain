@@ -20,8 +20,8 @@ GLuint createShaders(const char* vshader_source, const char* fshader_source){
 	glCompileShader(_vshader);
 	glCompileShader(_fshader);
 	
-	if(checkCompilation(_vshader) < 0) return -1;
-	if(checkCompilation(_fshader) < 0) return -1;
+	if(checkCompilation(_vshader, "VShader") < 0) return -1;
+	if(checkCompilation(_fshader, "FShader") < 0) return -1;
 
 	GLint _shaders = glCreateProgram();
 	glAttachShader(_shaders, _vshader);
@@ -35,7 +35,7 @@ GLuint createShaders(const char* vshader_source, const char* fshader_source){
 	return _shaders;
 }
 
-int checkCompilation(GLuint _shader){
+int checkCompilation(GLuint _shader, const char* shaderName){
 
 	GLint result;
 	GLchar infolog[512];
@@ -44,7 +44,7 @@ int checkCompilation(GLuint _shader){
 	if(!result){
 		
 		glGetShaderInfoLog(_shader, 512, NULL, infolog);
-		std::cout << "SHADER COMPILATION ERROR: " << infolog << std::endl;
+		std::cout << shaderName << " COMPILATION ERROR: " << infolog << std::endl;
 		return -1;
 	}
 
