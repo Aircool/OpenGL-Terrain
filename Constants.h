@@ -3,8 +3,10 @@
 const int WINDOW_WIDTH = 1280;
 const int WINDOW_HEIGHT = 720;
 
-const int NOISE_SIZE = 1024;
-const int OCTAVES = 7;
+const int MESH_SIZE = 256;
 
-const float AMPLITUDE = 0.5f;
+const int NOISE_SIZE = 1024;
+const int OCTAVES = 8;
+
+const float GAIN = 0.50f;
 const float LACUNARITY = 2.0f;

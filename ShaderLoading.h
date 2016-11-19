@@ -10,5 +10,5 @@
 
 const char* loadShaderSource(char* filePath);
 GLuint createShaders(const char* vshader_source, const char* fshader_source);
-int checkCompilation(GLuint _shader);
+int checkCompilation(GLuint _shader, const char* shaderName);
 int checkLinking(GLuint _shaders);

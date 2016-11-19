@@ -1,45 +1,40 @@
 #pragma once
 #include <vector>
 
-#include "ShaderLoading.h"
 #include "glm/glm.hpp"
 
+using glm::vec2;
 using glm::vec3;
 using glm::mat4;
 
 class TriangleMesh {
 	
 public:
-	
-	TriangleMesh(int size) : SIZE(size) {
-		
-		for(int row = 0; row < SIZE; ++row){
-			for(int col = 0; col < SIZE; ++col){
 
-				float x = -1.0f + ((2.0f * col) / (SIZE - 1));
-				float y = -1.0f + ((2.0f * row) / (SIZE - 1));
+	TriangleMesh(vec2 offset){
+		
+		for(int row = 0; row < MESH_SIZE; ++row){
+			for(int col = 0; col < MESH_SIZE; ++col){
+
+				float x = ((1.0f * col) / (MESH_SIZE - 1)) + offset[0];
+				float y = ((1.0f * row) / (MESH_SIZE - 1)) + offset[1];
 
 				vertices.push_back(vec3(x, y, 0));
 			}
 		}
 
-		for(int row = 0; row < SIZE - 1; ++row){
-			for(int col = 0; col < SIZE; ++col){
+		for(int row = 0; row < MESH_SIZE - 1; ++row){
+			for(int col = 0; col < MESH_SIZE; ++col){
 
-				indices.push_back(row * SIZE + col);
-				indices.push_back((row + 1) * SIZE + col);
+				indices.push_back(row * MESH_SIZE + col);
+				indices.push_back((row + 1) * MESH_SIZE + col);
 			}
 
-			indices.push_back(SIZE * SIZE);
+			indices.push_back(MESH_SIZE * MESH_SIZE);
 		}
 
-		const char* vshader_source = loadShaderSource((char *)"Shaders/TriangleMesh_V.GLSL");
-		const char* fshader_source = loadShaderSource((char *)"Shaders/TriangleMesh_F.GLSL");
-		_shaders = createShaders(vshader_source, fshader_source);
-		if(_shaders <= 0) return;
-
 		glEnable(GL_PRIMITIVE_RESTART);
-		glPrimitiveRestartIndex(SIZE * SIZE);
+		glPrimitiveRestartIndex(MESH_SIZE * MESH_SIZE);
 
 		glGenVertexArrays(1, &_vertexArray);
 		glGenBuffers(1, &_vertexBuffer);
@@ -55,16 +50,12 @@ public:
 		glBindVertexArray(0);
 	}
 
-	void setHeightMap(vec3** map){
+	void setShaders(GLuint shaders){
 
-		float heightMap[SIZE][SIZE];
+		_shaders = shaders;
+	}
 
-		for(int row = 0; row < SIZE; ++row){
-			for(int col = 0; col < SIZE; ++col){
-
-				heightMap[row][col] = map[row][col][0];
-			}
-		}
+	void setHeightMap(float* map){
 
 		glGenTextures(1, &_heightMap);
 		glActiveTexture(GL_TEXTURE0);
@@ -72,10 +63,10 @@ public:
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, SIZE, SIZE, 0, GL_RED, GL_FLOAT, heightMap);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, NOISE_SIZE, NOISE_SIZE, 0, GL_RED, GL_FLOAT, map);
 	}
 
 	void draw(mat4 MVP){
@@ -106,6 +97,4 @@ private:
 	std::vector<unsigned int> indices;
 
 	float** heightMap;
-
-	int SIZE;
 };

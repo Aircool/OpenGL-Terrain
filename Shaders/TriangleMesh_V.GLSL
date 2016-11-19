@@ -5,7 +5,7 @@ out float height;
 
 uniform mat4 MVP;
 uniform sampler2D HeightMap;
-
+ 
 void main(){
 
 	height = texture(HeightMap, vec2(position.x, position.y)).r;
