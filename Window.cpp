@@ -6,6 +6,8 @@
 
 #include "Constants.h"
 #include "ShaderLoading.h"
+
+#include "Camera.h"
 #include "TriangleMesh.h"
 #include "Noise.h"
 
@@ -13,15 +15,10 @@ SDL_Window* window;
 SDL_GLContext context;
 bool quit = false;
 
+Camera* camera;
+
 std::vector<TriangleMesh*> TMeshes;
 Noise* noise;
-
-float cam_X = 0.0f;
-float cam_Y = 0.0f;
-float cam_Z = 0.0f;
-float dir_X = 0.0f;
-float dir_Y = -2.0f;
-float dir_Z = -4.0f;
 
 int initSDL(){
 
@@ -47,6 +44,8 @@ int initSDL(){
 
 int initResources(int seed){
 	
+	camera = new Camera();
+
 	noise = new Noise(seed);
 	float* FBM = new float[NOISE_SIZE * NOISE_SIZE];
 
@@ -81,10 +80,7 @@ void render(){
 
 	mat4 Model(1.0f);
 
-	vec3 cam(0 + cam_X, 2.0 + cam_Y, 4.0 + cam_Z);
-	vec3 pt = cam + (vec3(dir_X, dir_Y, dir_Z) * 0.01f);
-
-	mat4 View = glm::lookAt(cam, pt, vec3(0, 0, 1));
+	mat4 View = glm::lookAt(camera->getPosition(), camera->getViewPoint(), camera->getUp());
 	mat4 Projection = glm::perspective(glm::radians(90.0f), ((float) WINDOW_WIDTH) / ((float) WINDOW_HEIGHT), 0.1f, 10.0f);
 	mat4 MVP = Projection * View * Model;
 	
@@ -112,17 +108,17 @@ void input(){
 				const unsigned char* kb_state = SDL_GetKeyboardState(NULL);
 				float tick = 1.0f / 60;
 
-				if(kb_state[SDL_SCANCODE_W])		cam_Y += tick;
-				if(kb_state[SDL_SCANCODE_S])		cam_Y -= tick;
-				if(kb_state[SDL_SCANCODE_A])		cam_X -= tick;
-				if(kb_state[SDL_SCANCODE_D])		cam_X += tick;
-				if(kb_state[SDL_SCANCODE_SPACE])	cam_Z -= tick;
-				if(kb_state[SDL_SCANCODE_LCTRL])	cam_Z += tick;   
+				if(kb_state[SDL_SCANCODE_W])		camera->move(Camera::UP);
+				if(kb_state[SDL_SCANCODE_S])		camera->move(Camera::DOWN);
+				if(kb_state[SDL_SCANCODE_A])		camera->move(Camera::LEFT);
+				if(kb_state[SDL_SCANCODE_D])		camera->move(Camera::RIGHT);
+				if(kb_state[SDL_SCANCODE_SPACE])	camera->move(Camera::FORWARD);
+				if(kb_state[SDL_SCANCODE_LCTRL])	camera->move(Camera::BACKWARD);
 
-				if(kb_state[SDL_SCANCODE_UP])		dir_Y += tick;
-				if(kb_state[SDL_SCANCODE_DOWN])		dir_Y -= tick;
-				if(kb_state[SDL_SCANCODE_LEFT])		dir_X -= tick; 
-				if(kb_state[SDL_SCANCODE_RIGHT])	dir_X += tick;
+				if(kb_state[SDL_SCANCODE_I])		camera->rotate(Camera::UP);		
+				if(kb_state[SDL_SCANCODE_K])		camera->rotate(Camera::DOWN);
+				if(kb_state[SDL_SCANCODE_J])		camera->rotate(Camera::LEFT);
+				if(kb_state[SDL_SCANCODE_L])		camera->rotate(Camera::RIGHT);
 			}
 		}
 	}

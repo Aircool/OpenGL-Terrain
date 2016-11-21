@@ -17,9 +17,9 @@ public:
 			for(int col = 0; col < MESH_SIZE; ++col){
 
 				float x = ((1.0f * col) / (MESH_SIZE - 1)) + offset[0];
-				float y = ((1.0f * row) / (MESH_SIZE - 1)) + offset[1];
+				float z = ((1.0f * row) / (MESH_SIZE - 1)) + offset[1];
 
-				vertices.push_back(vec3(x, y, 0));
+				vertices.push_back(vec3(x, 0.0f, z));
 			}
 		}
 

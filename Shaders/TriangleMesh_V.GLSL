@@ -8,6 +8,6 @@ uniform sampler2D HeightMap;
  
 void main(){
 
-	height = texture(HeightMap, vec2(position.x, position.y)).r;
-	gl_Position = MVP * vec4(position.x, position.y, position.z + height, 1.0);
+	height = texture(HeightMap, vec2(position.x, position.z)).r;
+	gl_Position = MVP * vec4(position.x, position.y + height, position.z, 1.0);
 }
