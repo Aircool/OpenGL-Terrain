@@ -23,12 +23,13 @@ public:
 
 		this->position = vec3(0.0f, 3.0f, -3.0f);
 		this->direction = normalize(vec3(0.0f, -1.0f, 1.0f));
-		
+		this->up = vec3(0.0f, 1.0f, 0.0f);
 		calculateBasis();
 	}
 
 	Camera(vec3 position, vec3 direction) : position(position), direction(normalize(direction)){
 
+		this->up = vec3(0.0f, 1.0f, 0.0f);
 		calculateBasis();
 	}
 
@@ -97,11 +98,10 @@ private:
 	
 	void calculateBasis(){
 
-		this->up = vec3(0.0f, 1.0f, 0.0f);
-		if(this->direction[0] == this->up[0] && this->direction[1] == this->up[1] && this->direction[2] == this->up[2]) this->up = vec3(0.0f, 0.0f, -1.0f);
-	
 		this->ux = normalize(cross(this->up, this->direction));
 		this->uy = cross(this->direction, this->ux);
+
+		this->up = uy;
 	}
 
 	vec3 position;
